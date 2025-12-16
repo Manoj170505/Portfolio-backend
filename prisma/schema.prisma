@@ -1,6 +1,8 @@
+// prisma/schema.prisma
+
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  output   = "../generated/prisma" // Ensure this matches your project structure
 }
 
 datasource db {
@@ -8,33 +10,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Admin {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  email String @unique
-  password String
-}
-
 model Experience {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  title String
-  company String
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  company     String
   description String
-  start_date String
-  end_date String
+  startDate   String // Changed to camelCase to match JS code
+  endDate     String // Changed to camelCase to match JS code
 }
 
-model Skills {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  name String
-  icon String
+model Project {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  image       String
+  link        String
+  github      String
+}
+
+model Skill {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  name  String
+  icon  String
   color String
 }
 
-model Projects {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  name String
-  description String
-  image String
-  link String
-  github String
+model Admin {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  email    String @unique
+  password String
 }
