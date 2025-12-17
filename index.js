@@ -35,6 +35,18 @@ app.post("/experience", async (req, res) => {
     }
 });
 
+app.delete("/experience/:id", async (req, res) => {
+    const { id } = req.params;
+    try {
+        await prisma.experience.delete({
+            where: { id: id },
+        });
+        res.status(200).json({ message: "Experience deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to delete", details: error.message });
+    }
+});
+
 app.get("/experience", async (req, res) => {
     try {
         const experiences = await prisma.experience.findMany();
@@ -63,6 +75,18 @@ app.post("/project", async (req, res) => {
     }
 });
 
+app.delete("/project/:id", async (req, res) => {
+    const { id } = req.params;
+    try {
+        await prisma.project.delete({
+            where: { id: id },
+        });
+        res.status(200).json({ message: "Project deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to delete", details: error.message });
+    }
+});
+
 app.get("/project", async (req, res) => {
     try {
         const projects = await prisma.project.findMany();  // Updated to match singular model
@@ -88,6 +112,18 @@ app.post("/skill", async (req, res) => {
     } catch (error) {
         console.error("Error creating skill:", error);
         res.status(500).json({ error: "Failed to create skill", details: error.message });
+    }
+});
+
+app.delete("/skill/:id", async (req, res) => {
+    const { id } = req.params;
+    try {
+        await prisma.skill.delete({
+            where: { id: id },
+        });
+        res.status(200).json({ message: "Skill deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to delete", details: error.message });
     }
 });
 
@@ -172,6 +208,27 @@ app.post("/social", async(req, res) => {
     }
 });
 
+app.put("/social/:id", async (req, res) => {
+    const { id } = req.params;
+    const { instagram, github, linkedin, pinterest } = req.body;
+
+    try {
+        const updatedSocial = await prisma.social.update({
+            where: { id: id },
+            data: {
+                instagram,
+                github,
+                linkedin,
+                pinterest
+            },
+        });
+        res.status(200).json(updatedSocial);
+    } catch (error) {
+        console.error("Error updating social:", error);
+        res.status(500).json({ error: "Failed to update social links", details: error.message });
+    }
+});
+
 app.get("/social", async(req, res) => {
     try {
         const social = await prisma.social.findFirst();
@@ -198,6 +255,29 @@ app.post("/about", async(req, res) => {
     } catch (error) {
         console.error("Error creating about:", error);
         res.status(500).json({ error: "Failed to create about", details: error.message });
+    }
+});
+
+app.put("/about/:id", async (req, res) => {
+    const { id } = req.params;
+    const { skills, description, image } = req.body;
+
+    try {
+        const updatedAbout = await prisma.about.update({
+            where: { id: id },
+            data: {
+                skills,
+                description,
+                image,
+            },
+        });
+        res.status(200).json(updatedAbout);
+    } catch (error) {
+        console.error("Error updating about section:", error);
+        res.status(500).json({ 
+            error: "Failed to update about section", 
+            details: error.message 
+        });
     }
 });
 
