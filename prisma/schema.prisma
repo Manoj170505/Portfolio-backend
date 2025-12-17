@@ -31,7 +31,7 @@ model Project {
 model Skill {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
   name     String
-  category String
+  category String @default("Software")
   icon     String
   color    String
 }
