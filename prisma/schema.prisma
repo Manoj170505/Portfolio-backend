@@ -41,3 +41,18 @@ model Admin {
   email    String @unique
   password String
 }
+
+model About {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  skills      String
+  description String
+  image       String
+}
+
+model Social {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  instagram   String
+  github      String
+  linkedin    String
+  pinterest   String
+}

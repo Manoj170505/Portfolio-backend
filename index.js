@@ -153,3 +153,64 @@ app.post("/admin/register", async (req, res) => {
         res.status(500).json({ error: "Registration failed", details: error.message });
     }
 });
+
+//Social Routes
+app.post("/social", async(req, res) => {
+    const {instagram, github, linkedin, pinterest} = req.body;
+    if (!instagram || !github || !linkedin || !pinterest) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    try {
+        const social = await prisma.social.create({
+            data: {instagram, github, linkedin, pinterest}
+        })
+        res.status(201).json(social);
+    } catch (error) {
+        console.error("Error creating social:", error);
+        res.status(500).json({ error: "Failed to create social", details: error.message });
+    }
+});
+
+app.get("/social", async(req, res) => {
+    try {
+        const social = await prisma.social.findUnique({
+            where: {id: "1"},
+        })
+        res.status(200).json(social);
+    } catch (error) {
+        console.error("Error fetching social:", error);
+        res.status(500).json({ error: "Failed to fetch social", details: error.message });
+    }
+});
+
+//About Routes
+
+app.post("/about", async(req, res) => {
+    const {skills, description, image} = req.body;
+    if (!skills || !description || !image) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    try {
+        const about = await prisma.about.create({
+            data: {skills, description, image}
+        })
+        res.status(201).json(about);
+    } catch (error) {
+        console.error("Error creating about:", error);
+        res.status(500).json({ error: "Failed to create about", details: error.message });
+    }
+});
+
+app.get("/about", async(req, res) => {
+    try {
+        const about = await prisma.about.findUnique({
+            where: {id: "1"},
+        })
+        res.status(200).json(about);
+    } catch (error) {
+        console.error("Error fetching about:", error);
+        res.status(500).json({ error: "Failed to fetch about", details: error.message });
+    }
+});
