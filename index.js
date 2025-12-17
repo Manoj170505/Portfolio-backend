@@ -174,9 +174,7 @@ app.post("/social", async(req, res) => {
 
 app.get("/social", async(req, res) => {
     try {
-        const social = await prisma.social.findUnique({
-            where: {id: "1"},
-        })
+        const social = await prisma.social.findFirst();
         res.status(200).json(social);
     } catch (error) {
         console.error("Error fetching social:", error);
@@ -205,9 +203,7 @@ app.post("/about", async(req, res) => {
 
 app.get("/about", async(req, res) => {
     try {
-        const about = await prisma.about.findUnique({
-            where: {id: "1"},
-        })
+        const about = await prisma.about.findFirst();
         res.status(200).json(about);
     } catch (error) {
         console.error("Error fetching about:", error);
