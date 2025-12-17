@@ -274,3 +274,44 @@ app.get("/about", async(req, res) => {
         res.status(500).json({ error: "Failed to fetch about", details: error.message });
     }
 });
+
+// Contact Routes
+app.post("/contact", async (req, res) => {
+    const { name, email, subject, message } = req.body;
+    if (!name || !email || !subject || !message) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+    try {
+        const contact = await prisma.contact.create({
+            data: { name, email, subject, message },
+        });
+        res.status(201).json(contact);
+    } catch (error) {
+        console.error("Error creating contact message:", error);
+        res.status(500).json({ error: "Failed to send message", details: error.message });
+    }
+});
+
+app.get("/contact", async (req, res) => {
+    try {
+        const contacts = await prisma.contact.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
+        res.status(200).json(contacts);
+    } catch (error) {
+        console.error("Error fetching messages:", error);
+        res.status(500).json({ error: "Failed to fetch messages", details: error.message });
+    }
+});
+
+app.delete("/contact/:id", async (req, res) => {
+    const { id } = req.params;
+    try {
+        await prisma.contact.delete({
+            where: { id: id },
+        });
+        res.status(200).json({ message: "Message deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Failed to delete message", details: error.message });
+    }
+});
