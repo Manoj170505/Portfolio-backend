@@ -2,6 +2,7 @@
 
 require("dotenv").config();
 const express = require("express");
+const bcrypt = require("bcryptjs");
 const { PrismaClient } = require("./generated/prisma");  // Path is correct assuming your structure
 const cors = require("cors");
 
@@ -150,43 +151,26 @@ app.listen(PORT, () => {
 // Admin Login Route
 app.post("/admin/login", async (req, res) => {
     const { email, password } = req.body;
-    if (!email || !password) {
-        return res.status(400).json({ error: "Email and password are required" });
-    }
-    console.log(`Admin login attempt:`, req.body);
+
     try {
         const admin = await prisma.admin.findUnique({
             where: { email },
         });
-       if (!admin || admin.password !== password) {
-            return res.status(401).json({ error: "Invalid email or password" });
+
+        if (!admin) {
+            return res.status(401).json({ error: "Invalid credentials" });
         }
+
+        const isMatch = await bcrypt.compare(password, admin.password);
+
+        if (!isMatch) {
+            return res.status(401).json({ error: "Invalid credentials" });
+        }
+
+        // Login success! 
         res.status(200).json({ message: "Login successful" });
     } catch (error) {
-        console.error("Error during admin login:", error);
-        res.status(500).json({ error: "Login failed", details: error.message });
-    }
-});
-
-app.post("/admin/register", async (req, res) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
-        return res.status(400).json({ error: "Email and password are required" });
-    }
-    try {
-        const existingAdmin = await prisma.admin.findUnique({
-            where: { email },
-        }); 
-        if (existingAdmin) {
-            return res.status(409).json({ error: "Admin with this email already exists" });
-        }
-        const newAdmin = await prisma.admin.create({
-            data: { email, password },
-        });
-        res.status(201).json({ message: "Admin registered successfully", adminId: newAdmin.id });
-    } catch (error) {
-        console.error("Error during admin registration:", error);
-        res.status(500).json({ error: "Registration failed", details: error.message });
+        res.status(500).json({ error: "Login failed" });
     }
 });
 
