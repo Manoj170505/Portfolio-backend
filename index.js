@@ -75,14 +75,14 @@ app.get("/project", async (req, res) => {
 
 // Skill Routes
 app.post("/skill", async (req, res) => {
-    const { name, icon, color } = req.body;
+    const { name, category, icon, color } = req.body;
     // Basic validation
-    if (!name || !icon || !color) {
+    if (!name || !category || !icon || !color) {
         return res.status(400).json({ error: "All fields are required" });
     }
     try {
         const skill = await prisma.skill.create({  // Updated to match singular model
-            data: { name, icon, color },
+            data: { name, category, icon, color },
         });
         res.status(201).json(skill);
     } catch (error) {

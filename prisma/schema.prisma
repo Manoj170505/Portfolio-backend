@@ -29,10 +29,11 @@ model Project {
 }
 
 model Skill {
-  id    String @id @default(auto()) @map("_id") @db.ObjectId
-  name  String
-  icon  String
-  color String
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  category String
+  icon     String
+  color    String
 }
 
 model Admin {
