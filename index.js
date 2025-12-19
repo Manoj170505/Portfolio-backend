@@ -3,12 +3,27 @@
 require("dotenv").config();
 const express = require("express");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const { PrismaClient } = require("./generated/prisma");  // Path is correct assuming your structure
 const cors = require("cors");
 
 const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3000;
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
+
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+
+    if (token == null) return res.sendStatus(401);
+
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) return res.sendStatus(403);
+        req.user = user;
+        next();
+    });
+};
 
 app.use(cors());
 app.use(express.json());
@@ -19,7 +34,7 @@ app.get("/", (req, res) => {
 });
 
 // Experience Routes
-app.post("/experience", async (req, res) => {
+app.post("/experience", authenticateToken, async (req, res) => {
     const { title, company, startDate, endDate, description } = req.body;
     // Basic validation
     if (!title || !company || !startDate || !endDate || !description) {
@@ -36,7 +51,7 @@ app.post("/experience", async (req, res) => {
     }
 });
 
-app.delete("/experience/:id", async (req, res) => {
+app.delete("/experience/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     try {
         await prisma.experience.delete({
@@ -59,7 +74,7 @@ app.get("/experience", async (req, res) => {
 });
 
 // Project Routes
-app.post("/project", async (req, res) => {
+app.post("/project", authenticateToken, async (req, res) => {
     const { name, description, image, link, github } = req.body;
     // Basic validation
     if (!name || !description || !image || !link || !github) {
@@ -76,7 +91,7 @@ app.post("/project", async (req, res) => {
     }
 });
 
-app.delete("/project/:id", async (req, res) => {
+app.delete("/project/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     try {
         await prisma.project.delete({
@@ -99,7 +114,7 @@ app.get("/project", async (req, res) => {
 });
 
 // Skill Routes
-app.post("/skill", async (req, res) => {
+app.post("/skill", authenticateToken, async (req, res) => {
     const { name, category, icon, color } = req.body;
     // Basic validation
     if (!name || !category || !icon || !color) {
@@ -116,7 +131,7 @@ app.post("/skill", async (req, res) => {
     }
 });
 
-app.delete("/skill/:id", async (req, res) => {
+app.delete("/skill/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     try {
         await prisma.skill.delete({
@@ -168,14 +183,15 @@ app.post("/admin/login", async (req, res) => {
         }
 
         // Login success! 
-        res.status(200).json({ message: "Login successful" });
+        const token = jwt.sign({ id: admin.id, email: admin.email }, JWT_SECRET, { expiresIn: '1h' });
+        res.status(200).json({ message: "Login successful", token });
     } catch (error) {
         res.status(500).json({ error: "Login failed" });
     }
 });
 
 //Social Routes
-app.post("/social", async(req, res) => {
+app.post("/social", authenticateToken, async(req, res) => {
     const {instagram, github, linkedin, pinterest} = req.body;
     if (!instagram || !github || !linkedin || !pinterest) {
         return res.status(400).json({ error: "All fields are required" });
@@ -192,7 +208,7 @@ app.post("/social", async(req, res) => {
     }
 });
 
-app.put("/social/:id", async (req, res) => {
+app.put("/social/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { instagram, github, linkedin, pinterest } = req.body;
 
@@ -225,7 +241,7 @@ app.get("/social", async(req, res) => {
 
 //About Routes
 
-app.post("/about", async(req, res) => {
+app.post("/about", authenticateToken, async(req, res) => {
     const {skills, description, image} = req.body;
     if (!skills || !description || !image) {
         return res.status(400).json({ error: "All fields are required" });
@@ -242,7 +258,7 @@ app.post("/about", async(req, res) => {
     }
 });
 
-app.put("/about/:id", async (req, res) => {
+app.put("/about/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     const { skills, description, image } = req.body;
 
@@ -304,7 +320,7 @@ app.get("/contact", async (req, res) => {
     }
 });
 
-app.delete("/contact/:id", async (req, res) => {
+app.delete("/contact/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     try {
         await prisma.contact.delete({
